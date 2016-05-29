@@ -1,28 +1,220 @@
-== README
-
-This README would normally document whatever steps are necessary to get the
-application up and running.
-
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
 
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+explain analyze SELECT items.name, items.geo, items.id, items.order_key FROM items INNER JOIN items_users ON items_users.item_id = items.id WHERE items_users.user_id = 1 ORDER BY items.order_key DESC LIMIT 10 OFFSET 20000;
+
+
+
+ORDER BY items.id DESC LIMIT 10 OFFSET 10;
+
+  QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=12.70..24.56 rows=10 width=30) (actual time=0.118..0.187 rows=10 loops=1)
+   ->  Nested Loop  (cost=0.85..153493.67 rows=129494 width=30) (actual time=0.034..0.177 rows=20 loops=1)
+         ->  Index Scan Backward using index_items_users_on_item_id on items_users  (cost=0.43..85313.37 rows=129494 width=4) (actual time=0.016..0.036 rows=20 loops=1)
+               Filter: (user_id = 1)
+         ->  Index Scan using items_pkey on items  (cost=0.42..0.52 rows=1 width=30) (actual time=0.005..0.005 rows=1 loops=20)
+               Index Cond: (id = items_users.item_id)
+ Planning time: 0.756 ms
+ Execution time: 0.262 ms
+(8 rows)
+
+
+
+ORDER BY items_users.id DESC LIMIT 10 OFFSET 10;
+
+
+  QUERY PLAN
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=13.05..25.25 rows=10 width=34) (actual time=0.135..0.223 rows=10 loops=1)
+   ->  Nested Loop  (cost=0.85..158013.79 rows=129494 width=34) (actual time=0.040..0.215 rows=20 loops=1)
+         ->  Index Scan Backward using items_users_pkey on items_users  (cost=0.43..89833.49 rows=129494 width=8) (actual time=0.021..0.041 rows=20 loops=1)
+               Filter: (user_id = 1)
+         ->  Index Scan using items_pkey on items  (cost=0.42..0.52 rows=1 width=30) (actual time=0.006..0.007 rows=1 loops=20)
+               Index Cond: (id = items_users.item_id)
+ Planning time: 0.690 ms
+ Execution time: 0.296 ms
+(8 rows)
+
+
+
+ORDER BY items.order_key DESC LIMIT 10 OFFSET 10;
+
+ QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=53.66..106.47 rows=10 width=30) (actual time=0.368..0.422 rows=10 loops=1)
+   ->  Nested Loop  (cost=0.85..683839.06 rows=129494 width=30) (actual time=0.303..0.413 rows=20 loops=1)
+         ->  Index Scan Backward using index_items_on_order_key on items  (cost=0.42..10475.19 rows=230543 width=30) (actual time=0.287..0.292 rows=20 loops=1)
+         ->  Index Scan using index_items_users_on_item_id on items_users  (cost=0.43..2.87 rows=5 width=4) (actual time=0.004..0.005 rows=1 loops=20)
+               Index Cond: (item_id = items.id)
+               Filter: (user_id = 1)
+ Planning time: 0.517 ms
+ Execution time: 0.465 ms
+(8 rows)
+
+
+ORDER BY items_users.order_key DESC LIMIT 10 OFFSET 10;
+QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=15.69..30.53 rows=10 width=38) (actual time=0.727..1.359 rows=10 loops=1)
+   ->  Nested Loop  (cost=0.85..192168.90 rows=129494 width=38) (actual time=0.032..1.348 rows=20 loops=1)
+         ->  Index Scan Backward using index_items_users_on_order_key on items_users  (cost=0.43..123988.60 rows=129494 width=12) (actual time=0.018..1.210 rows=20 loops=1)
+               Filter: (user_id = 1)
+               Rows Removed by Filter: 1862
+         ->  Index Scan using items_pkey on items  (cost=0.42..0.52 rows=1 width=30) (actual time=0.005..0.006 rows=1 loops=20)
+               Index Cond: (id = items_users.item_id)
+ Planning time: 0.588 ms
+ Execution time: 1.419 ms
+(9 rows)
+
+
+ORDER BY items.order_key DESC LIMIT 10 OFFSET 20000;
+QUERY PLAN
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=29680.69..29695.53 rows=10 width=38) (actual time=69.592..69.620 rows=10 loops=1)
+   ->  Nested Loop  (cost=0.85..192168.90 rows=129494 width=38) (actual time=0.017..68.168 rows=20010 loops=1)
+         ->  Index Scan Backward using index_items_users_on_order_key on items_users  (cost=0.43..123988.60 rows=129494 width=12) (actual time=0.009..12.437 rows=20010 loops=1)
+               Filter: (user_id = 1)
+               Rows Removed by Filter: 11466
+         ->  Index Scan using items_pkey on items  (cost=0.42..0.52 rows=1 width=30) (actual time=0.002..0.002 rows=1 loops=20010)
+               Index Cond: (id = items_users.item_id)
+ Planning time: 0.314 ms
+ Execution time: 69.652 ms
+
+
+
+ORDER BY items.order_key DESC LIMIT 10 OFFSET 20000;
+
+
+QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=40980.45..40980.48 rows=10 width=30) (actual time=969.497..969.500 rows=10 loops=1)
+   ->  Sort  (cost=40930.45..41254.19 rows=129494 width=30) (actual time=965.055..968.131 rows=20010 loops=1)
+         Sort Key: items.order_key
+         Sort Method: top-N heapsort  Memory: 2152kB
+         ->  Hash Join  (cost=11184.23..31031.65 rows=129494 width=30) (actual time=222.515..761.805 rows=251472 loops=1)
+               Hash Cond: (items_users.item_id = items.id)
+               ->  Bitmap Heap Scan on items_users  (cost=2696.01..17329.68 rows=129494 width=4) (actual time=38.272..133.290 rows=251472 loops=1)
+                     Recheck Cond: (user_id = 1)
+                     Heap Blocks: exact=11473
+                     ->  Bitmap Index Scan on index_items_users_on_user_id  (cost=0.00..2663.63 rows=129494 width=0) (actual time=34.263..34.263 rows=303169 loops=1)
+                           Index Cond: (user_id = 1)
+               ->  Hash  (cost=4030.43..4030.43 rows=230543 width=30) (actual time=183.855..183.855 rows=230556 loops=1)
+                     Buckets: 8192  Batches: 4  Memory Usage: 2938kB
+                     ->  Seq Scan on items  (cost=0.00..4030.43 rows=230543 width=30) (actual time=0.010..70.738 rows=230556 loops=1)
+ Planning time: 0.284 ms
+ Execution time: 970.330 ms
+(16 rows)
+
+
+
+ORDER BY items_users.order_key DESC LIMIT 10 OFFSET 20000;
+
+QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=15324.38..15331.73 rows=10 width=30) (actual time=155.351..155.378 rows=10 loops=1)
+   ->  Merge Join  (cost=635.19..95743.30 rows=129494 width=30) (actual time=0.030..153.344 rows=20010 loops=1)
+         Merge Cond: (items.id = items_users.item_id)
+         ->  Index Scan Backward using items_pkey on items  (cost=0.42..8234.90 rows=230543 width=30) (actual time=0.015..65.893 rows=20010 loops=1)
+         ->  Index Scan Backward using index_items_users_on_item_id on items_users  (cost=0.43..85313.37 rows=129494 width=4) (actual time=0.009..68.082 rows=20010 loops=1)
+               Filter: (user_id = 1)
+ Planning time: 0.645 ms
+ Execution time: 155.453 ms
+
+
+
+
+ORDER BY items.id DESC LIMIT 10 OFFSET 20000;
+
+
+ QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=15324.38..15331.73 rows=10 width=30) (actual time=50.220..50.239 rows=10 loops=1)
+   ->  Merge Join  (cost=635.19..95743.30 rows=129494 width=30) (actual time=0.027..47.978 rows=20010 loops=1)
+         Merge Cond: (items.id = items_users.item_id)
+         ->  Index Scan Backward using items_pkey on items  (cost=0.42..8234.90 rows=230543 width=30) (actual time=0.013..10.273 rows=20010 loops=1)
+         ->  Index Scan Backward using index_items_users_on_item_id on items_users  (cost=0.43..85313.37 rows=129494 width=4) (actual time=0.007..15.310 rows=20010 loops=1)
+               Filter: (user_id = 1)
+ Planning time: 0.498 ms
+ Execution time: 50.289 ms
+(8 rows)
+
+
+
+ORDER BY items_users.id DESC LIMIT 10 OFFSET 20000;
+
+   QUERY PLAN
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=24405.52..24417.73 rows=10 width=34) (actual time=182.007..182.055 rows=10 loops=1)
+   ->  Nested Loop  (cost=0.85..158013.79 rows=129494 width=34) (actual time=0.034..179.419 rows=20010 loops=1)
+         ->  Index Scan Backward using items_users_pkey on items_users  (cost=0.43..89833.49 rows=129494 width=8) (actual time=0.016..79.502 rows=20010 loops=1)
+               Filter: (user_id = 1)
+         ->  Index Scan using items_pkey on items  (cost=0.42..0.52 rows=1 width=30) (actual time=0.004..0.004 rows=1 loops=20010)
+               Index Cond: (id = items_users.item_id)
+ Planning time: 0.795 ms
+ Execution time: 182.119 ms
+(8 rows)
+
+
+ORDER BY items_users.order_key DESC LIMIT 10 OFFSET 200000;
+
+  QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=46147.06..46147.06 rows=1 width=38) (actual time=952.516..952.519 rows=10 loops=1)
+   ->  Sort  (cost=45823.32..46147.06 rows=129494 width=38) (actual time=864.653..941.658 rows=200010 loops=1)
+         Sort Key: items_users.order_key
+         Sort Method: external merge  Disk: 11584kB
+         ->  Hash Join  (cost=11184.23..31285.65 rows=129494 width=38) (actual time=210.730..601.657 rows=251472 loops=1)
+               Hash Cond: (items_users.item_id = items.id)
+               ->  Bitmap Heap Scan on items_users  (cost=2696.01..17329.68 rows=129494 width=12) (actual time=65.459..133.223 rows=251472 loops=1)
+                     Recheck Cond: (user_id = 1)
+                     Heap Blocks: exact=11473
+                     ->  Bitmap Index Scan on index_items_users_on_user_id  (cost=0.00..2663.63 rows=129494 width=0) (actual time=61.051..61.051 rows=303169 loops=1)
+                           Index Cond: (user_id = 1)
+               ->  Hash  (cost=4030.43..4030.43 rows=230543 width=30) (actual time=145.105..145.105 rows=230556 loops=1)
+                     Buckets: 8192  Batches: 4  Memory Usage: 2938kB
+                     ->  Seq Scan on items  (cost=0.00..4030.43 rows=230543 width=30) (actual time=0.008..56.433 rows=230556 loops=1)
+ Planning time: 0.549 ms
+ Execution time: 956.082 ms
+
+
+
+ORDER BY items.order_key DESC LIMIT 10 OFFSET 200000;
+QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=45452.06..45452.06 rows=1 width=30) (actual time=992.205..992.210 rows=10 loops=1)
+   ->  Sort  (cost=45128.32..45452.06 rows=129494 width=30) (actual time=905.195..982.253 rows=200010 loops=1)
+         Sort Key: items.order_key
+         Sort Method: external merge  Disk: 10296kB
+         ->  Hash Join  (cost=11184.23..31031.65 rows=129494 width=30) (actual time=218.377..607.339 rows=251472 loops=1)
+               Hash Cond: (items_users.item_id = items.id)
+               ->  Bitmap Heap Scan on items_users  (cost=2696.01..17329.68 rows=129494 width=4) (actual time=53.988..119.696 rows=251472 loops=1)
+                     Recheck Cond: (user_id = 1)
+                     Heap Blocks: exact=11473
+                     ->  Bitmap Index Scan on index_items_users_on_user_id  (cost=0.00..2663.63 rows=129494 width=0) (actual time=50.153..50.153 rows=303169 loops=1)
+                           Index Cond: (user_id = 1)
+               ->  Hash  (cost=4030.43..4030.43 rows=230543 width=30) (actual time=164.223..164.223 rows=230556 loops=1)
+                     Buckets: 8192  Batches: 4  Memory Usage: 2938kB
+                     ->  Seq Scan on items  (cost=0.00..4030.43 rows=230543 width=30) (actual time=0.008..63.344 rows=230556 loops=1)
+ Planning time: 0.669 ms
+ Execution time: 1005.412 ms
+
+
+
+
+ LIMIT 10 OFFSET 200000;
+
+ QUERY PLAN
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=31031.65..31031.65 rows=1 width=30) (actual time=506.238..506.246 rows=10 loops=1)
+   ->  Hash Join  (cost=11184.23..31031.65 rows=129494 width=30) (actual time=171.266..495.972 rows=200010 loops=1)
+         Hash Cond: (items_users.item_id = items.id)
+         ->  Bitmap Heap Scan on items_users  (cost=2696.01..17329.68 rows=129494 width=4) (actual time=33.939..103.135 rows=251472 loops=1)
+               Recheck Cond: (user_id = 1)
+               Heap Blocks: exact=11473
+               ->  Bitmap Index Scan on index_items_users_on_user_id  (cost=0.00..2663.63 rows=129494 width=0) (actual time=31.041..31.041 rows=303169 loops=1)
+                     Index Cond: (user_id = 1)
+         ->  Hash  (cost=4030.43..4030.43 rows=230543 width=30) (actual time=137.141..137.141 rows=230556 loops=1)
+               Buckets: 8192  Batches: 4  Memory Usage: 2938kB
+               ->  Seq Scan on items  (cost=0.00..4030.43 rows=230543 width=30) (actual time=0.006..53.642 rows=230556 loops=1)
+ Planning time: 0.265 ms
+ Execution time: 507.000 ms
