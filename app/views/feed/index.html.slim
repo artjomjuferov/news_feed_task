@@ -1,0 +1,17 @@
+div data-bind="visible: loading"
+  img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"
+
+/
+
+div data-bind="visible: !loading()" style="display:none"
+  ul data-bind="foreach: items"
+    li
+      p
+        | Name:
+        span data-bind="text: name"
+      p
+        | Geo location:
+        span data-bind="text: geo"
+
+div data-bind="foreach: pages"
+  button.page data-bind="text: $data"
