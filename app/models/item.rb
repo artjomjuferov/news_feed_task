@@ -24,7 +24,7 @@ class Item < ActiveRecord::Base
 
     def last_page user_id
       user_id = from_param user_id
-      all     = ItemsUser.where(user_id: user_id).all
+      all     = ItemsUser.where(user_id: user_id).count
       (all.to_f/PER_PAGE).ceil
     end
 
