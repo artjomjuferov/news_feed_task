@@ -18,7 +18,7 @@ LIMIT 10
 OFFSET 100000
 ```
 
-I assumed that sorting by items_users.order_key can improve speed. But it has extra logic on dublicating order_key from table items. And it shows better performance sometimes. 
+I assumed that sorting by items_users.order_key may improve performance. But it has extra logic on dublicating order_key from table items. And it shows better performance sometimes. 
 ```
 SELECT items.name, items.geo, items.id, items.picture_path
   FROM items
