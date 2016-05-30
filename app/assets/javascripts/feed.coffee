@@ -1,7 +1,8 @@
-Item = (obj)->
-  @name = obj.name
-  @geo  = obj.geo
-  @id   = obj.id
+Item = (item)->
+  @name    = item.name
+  @geo     = item.geo
+  @id      = item.id
+  @picture = item.picture
 
 AppViewModel = (userId, page)->
   self = @

@@ -13,7 +13,6 @@ gem 'slim'
 
 gem 'jbuilder', '~> 2.0'
 
-gem "paperclip"
 
 group :development, :test do
   gem 'byebug'

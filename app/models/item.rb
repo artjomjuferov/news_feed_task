@@ -39,42 +39,13 @@ class Item < ActiveRecord::Base
     # a little bit faster than ORDER BY items.order_key DESC
     def get_query user_id, offset
       %{
-        SELECT items.name, items.geo, items.id
+        SELECT items.name, items.geo, items.id, items.picture_path
           FROM items
         INNER JOIN items_users
           ON items_users.item_id = items.id
         WHERE
           items_users.user_id = #{user_id}
         ORDER BY items_users.order_key DESC
-        LIMIT #{PER_PAGE}
-        OFFSET #{offset}
-      }
-    end
-
-    def get_query1 user_id, offset
-      %{
-        SELECT items.name, items.geo, items.id
-          FROM items
-        INNER JOIN items_users
-          ON items_users.item_id = items.id
-        WHERE
-          items_users.user_id = #{user_id}
-        ORDER BY items.order_key DESC
-        LIMIT #{PER_PAGE}
-        OFFSET #{offset}
-      }
-    end
-
-    # most fastest query, if it's right
-    def get_query2 user_id, offset
-      %{
-        SELECT items.name, items.geo, items.id
-          FROM items
-        INNER JOIN items_users
-          ON items_users.item_id = items.id
-        WHERE
-          items_users.user_id = #{user_id}
-        ORDER BY items.id DESC
         LIMIT #{PER_PAGE}
         OFFSET #{offset}
       }

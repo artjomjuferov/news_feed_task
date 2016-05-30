@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160528162106) do
+ActiveRecord::Schema.define(version: 20160530081346) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20160528162106) do
     t.string   "name"
     t.float    "geo"
     t.datetime "order_key"
+    t.string   "picture_path"
   end
 
   add_index "items", ["order_key"], name: "index_items_on_order_key", using: :btree
